@@ -15,7 +15,9 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class PersonForm extends FormLayout {
 
@@ -55,7 +57,7 @@ public class PersonForm extends FormLayout {
             e.printStackTrace();
         }
 
-        setSizeUndefined();
+        setSizeFull();
         HorizontalLayout buttons = new HorizontalLayout(savePerson, deletePerson);
         buttons.setSpacing(true);
 
@@ -111,7 +113,7 @@ public class PersonForm extends FormLayout {
 
         if (person.getIdPerson() != null && person.getIdPerson() > 0) {
 
-            List<Telephone> phones = new ArrayList<>();
+            Set<Telephone> phones = new HashSet<>();
 
             if (person.getTelephones() != null) {
                 phones.addAll(person.getTelephones());
@@ -127,7 +129,10 @@ public class PersonForm extends FormLayout {
             List<Telephone> phones = new ArrayList<>();
             phones.add(telephone);
 
-            person.setTelephones(phones);
+
+            Set<Telephone> setTelephone = new HashSet<>(phones);
+
+            person.setTelephones(setTelephone);
             personService.insert(person);
         }
 
@@ -136,9 +141,17 @@ public class PersonForm extends FormLayout {
     }
 
     private void delete() {
-        personService.delete(person);
-        myUI.updateList();
-        setVisible(false);
+        try {
+
+            personService.delete(person);
+            myUI.updateList();
+            setVisible(false);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Notification.show("Can't Delete.","The person is known of other persons", Notification.Type.WARNING_MESSAGE);
+        }
+
     }
 
     private void deletePhone() {

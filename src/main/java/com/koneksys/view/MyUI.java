@@ -1,6 +1,7 @@
 package com.koneksys.view;
 
 import com.koneksys.model.Person;
+import com.koneksys.model.PersonKnown;
 import com.koneksys.model.Telephone;
 import com.koneksys.service.PersonService;
 import com.vaadin.annotations.Theme;
@@ -20,6 +21,7 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.servlet.annotation.WebServlet;
+import java.util.ArrayList;
 import java.util.List;
 
 @Theme("valo")
@@ -30,13 +32,16 @@ public class MyUI extends UI {
 
     final Grid gridPerson = new Grid();
     final Grid gridTelephone = new Grid();
+    final Grid gridKnown = new Grid();
 
     final BeanItemContainer<Person> bicPerson = new BeanItemContainer<>(Person.class);
     final BeanItemContainer<Telephone> bicTelephone = new BeanItemContainer<>(Telephone.class);
+    final BeanItemContainer<Person> bicKnown = new BeanItemContainer<>(Person.class);
 
     private TextField txtFilter = new TextField();
     private PersonForm formPerson = new PersonForm(this);
     private TelephoneForm formTelephone = new TelephoneForm(this);
+    private KnownForm formKnown = new KnownForm(this);
 
     @Override
     protected void init(VaadinRequest vaadinRequest) {
@@ -91,26 +96,34 @@ public class MyUI extends UI {
         HorizontalLayout toolbar = new HorizontalLayout(filtering, btnAddPerson, btnAddPhone, new Label("For Update or Delete, click the person record."));
         toolbar.setSpacing(true);
 
+        gridPerson.setCaption("Persons");
         gridPerson.setSelectionMode(Grid.SelectionMode.SINGLE);
         gridPerson.setContainerDataSource(bicPerson);
         gridPerson.setColumns("name", "age", "country");
         gridPerson.setHeightMode(HeightMode.ROW);
         gridPerson.setHeightByRows(5);
 
+        gridTelephone.setCaption("Telephone Numbers");
         gridTelephone.setSelectionMode(Grid.SelectionMode.SINGLE);
         gridTelephone.setContainerDataSource(bicTelephone);
         gridTelephone.setColumns("number");
         gridTelephone.setHeightMode(HeightMode.ROW);
-        gridTelephone.setHeightByRows(3);
+        gridTelephone.setHeightByRows(5);
 
+        gridKnown.setCaption("Friends");
+        gridKnown.setSelectionMode(Grid.SelectionMode.SINGLE);
+        gridKnown.setContainerDataSource(bicKnown);
+        gridKnown.setColumns("name", "country");
+        gridKnown.setHeightMode(HeightMode.ROW);
+        gridKnown.setHeightByRows(5);
 
-        HorizontalLayout grids = new HorizontalLayout(gridPerson, gridTelephone);
+        HorizontalLayout grids = new HorizontalLayout(gridPerson, gridTelephone, gridKnown);
         grids.setSpacing(true);
         grids.setSizeFull();
 
-        HorizontalLayout forms = new HorizontalLayout(formPerson, formTelephone);
+        HorizontalLayout forms = new HorizontalLayout(formPerson, formTelephone, formKnown);
         forms.setSpacing(true);
-        forms.setSizeFull();;
+        forms.setSizeFull();
 
         VerticalLayout main = new VerticalLayout(grids, forms);
         main.setSizeFull();
@@ -118,6 +131,8 @@ public class MyUI extends UI {
 
         gridPerson.setSizeFull();
         gridTelephone.setSizeFull();
+        gridKnown.setSizeFull();
+
         main.setExpandRatio(grids, 1);
 
         layout.addComponents(welcome, toolbar, main);
@@ -134,6 +149,7 @@ public class MyUI extends UI {
 
         formPerson.setVisible(false);
         formTelephone.setVisible(false);
+        formKnown.setVisible(false);
 
         gridPerson.addSelectionListener(new SelectionEvent.SelectionListener() {
             @Override
@@ -144,15 +160,25 @@ public class MyUI extends UI {
                     bicTelephone.removeAllItems();
                     bicTelephone.addAll(person.getTelephones());
 
+                    bicKnown.removeAllItems();
+                    if (person.getKnowns() != null && person.getKnowns().size() > 0) {
+                        List<Person> listPerson = new ArrayList<>();
+                        for (PersonKnown personKnown : person.getKnowns()) {
+                            bicKnown.addBean(personKnown.getKnown());
+                        }
+
+                    }
+
                     Telephone telephone;
                     if (person.getTelephones() != null && person.getTelephones().size() > 0) {
-                        gridTelephone.select(person.getTelephones().get(0));
+                        gridTelephone.select(person.getTelephones().iterator().next());
                         telephone = (Telephone) gridTelephone.getSelectedRow();
                     } else {
                         telephone = new Telephone();
                     }
 
                     formPerson.setPerson(person, telephone);
+                    formKnown.setPerson(person);
 
                     btnAddPhone.setVisible(gridPerson.getSelectedRow() != null);
 
@@ -160,6 +186,7 @@ public class MyUI extends UI {
                     bicTelephone.removeAllItems();
                     formPerson.setVisible(false);
                     formTelephone.setVisible(false);
+                    formKnown.setVisible(false);
                 }
             }
         });
@@ -190,6 +217,7 @@ public class MyUI extends UI {
             List<Person> listPerson = personService.findAll(txtFilter.getValue());
             bicPerson.removeAllItems();
             bicTelephone.removeAllItems();
+            bicKnown.removeAllItems();
 
             bicPerson.addAll(listPerson);
 
@@ -199,6 +227,10 @@ public class MyUI extends UI {
 
             if (formTelephone.isVisible()) {
                 formTelephone.setVisible(false);
+            }
+
+            if (formKnown.isVisible()) {
+                formKnown.setVisible(false);
             }
 
         } catch (NamingException e) {

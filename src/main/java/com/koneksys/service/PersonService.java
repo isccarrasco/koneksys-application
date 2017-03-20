@@ -16,5 +16,9 @@ public interface PersonService {
 
     public void update(Person person);
 
-    public void delete(Person person);
+    public void updateKnown(Person person);
+
+    public void delete(Person person) throws Exception;
+
+    public List<Person> findKnowns(Integer idPerson);
 }

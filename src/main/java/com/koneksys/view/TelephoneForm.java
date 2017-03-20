@@ -15,12 +15,12 @@ import javax.ejb.EJB;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 public class TelephoneForm extends FormLayout {
 
-    private TextField txtPhone = new TextField("Phone Number");
+    private TextField txtPhone = new TextField("Number");
 
     private BeanItemContainer<Telephone> bicPhone = new BeanItemContainer<Telephone>(Telephone.class);
 
@@ -50,7 +50,7 @@ public class TelephoneForm extends FormLayout {
             e.printStackTrace();
         }
 
-        setSizeUndefined();
+        setSizeFull();
         HorizontalLayout buttons = new HorizontalLayout(savePhone, deletePhone);
         buttons.setSpacing(true);
 
@@ -71,7 +71,7 @@ public class TelephoneForm extends FormLayout {
         deletePhone.addClickListener(new Button.ClickListener() {
             @Override
             public void buttonClick(Button.ClickEvent clickEvent) {
-                delete();
+                deletePhone();
             }
         });
 
@@ -104,28 +104,20 @@ public class TelephoneForm extends FormLayout {
             e.printStackTrace();
         }
 
+        Set<Telephone> setTelephone = new HashSet<>();
         if (person.getIdPerson() != null && person.getIdPerson() > 0) {
-            List<Telephone> phones = new ArrayList<>();
-
             if (person.getTelephones() != null) {
-                phones.addAll(person.getTelephones());
+                setTelephone.addAll(person.getTelephones());
             }
-            phones.add(telephone);
-            person.setTelephones(phones);
+            setTelephone.add(telephone);
+            person.setTelephones(setTelephone);
             personService.update(person);
         } else {
-            List<Telephone> phones = new ArrayList<>();
-            phones.add(telephone);
-            person.setTelephones(phones);
+            setTelephone.add(telephone);
+            person.setTelephones(setTelephone);
             personService.insert(person);
         }
 
-        myUI.updateList();
-        setVisible(false);
-    }
-
-    private void delete() {
-        personService.delete(person);
         myUI.updateList();
         setVisible(false);
     }
