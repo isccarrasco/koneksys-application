@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="2.1"
+             xmlns="http://xmlns.jcp.org/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd">
+
+    <!--<persistence-unit name="applicationPU" transaction-type="RESOURCE_LOCAL">-->
+        <!--<provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>-->
+        <!--<class>com.koneksys.model.Person</class>-->
+
+        <!--<properties>-->
+            <!--<property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQL95Dialect" />-->
+            <!--<property name="javax.persistence.jdbc.driver" value="org.postgresql.Driver"/>-->
+            <!--<property name="javax.persistence.jdbc.user" value="[user-name]"/>-->
+            <!--<property name="javax.persistence.jdbc.password" value="[your-password]"/>-->
+            <!--<property name="javax.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/application"/>-->
+            <!--<property name="hibernate.transaction.factory_class" value="org.hibernate.ejb.transaction.JoinableCMTTransactionFactory"/>-->
+        <!--</properties>-->
+
+    <!--</persistence-unit>-->
+
+    <persistence-unit name="applicationPU" transaction-type="JTA">
+        <jta-data-source>java:/PostgresDS</jta-data-source>
+        <properties>
+            <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQL95Dialect" />
+            <property name="hibernate.transaction.factory_class" value="org.hibernate.ejb.transaction.JoinableCMTTransactionFactory"/>
+        </properties>
+    </persistence-unit>
+
+</persistence>
