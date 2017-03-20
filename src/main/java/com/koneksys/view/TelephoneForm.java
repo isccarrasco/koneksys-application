@@ -6,6 +6,7 @@ import com.koneksys.service.PersonService;
 import com.koneksys.service.TelephoneService;
 import com.vaadin.data.fieldgroup.BeanFieldGroup;
 import com.vaadin.data.fieldgroup.FieldGroup;
+import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.event.ShortcutAction;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
@@ -17,16 +18,14 @@ import javax.naming.NamingException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PersonForm extends FormLayout {
+public class TelephoneForm extends FormLayout {
 
-    private TextField txtName = new TextField("Name");
-    private TextField txtAge = new TextField("Age");
-    private TextField txtCountry = new TextField("Country");
+    private TextField txtPhone = new TextField("Phone Number");
 
-    private TextField txtPhone = new TextField("Phone Nomber");
+    private BeanItemContainer<Telephone> bicPhone = new BeanItemContainer<Telephone>(Telephone.class);
 
-    private Button savePerson = new Button("Save");
-    private Button deletePerson = new Button("Delete");
+    private Button savePhone = new Button("Save");
+    private Button deletePhone = new Button("Delete");
 
     @EJB
     private PersonService personService;
@@ -38,12 +37,8 @@ public class PersonForm extends FormLayout {
     private BeanFieldGroup<Person> binderPerson = new BeanFieldGroup<>(Person.class);
     private BeanFieldGroup<Telephone> binderTelephone = new BeanFieldGroup<>(Telephone.class);
 
-    public PersonForm(MyUI myUI) {
+    public TelephoneForm(MyUI myUI) {
         this.myUI = myUI;
-
-        txtName.setNullRepresentation("");
-        txtAge.setNullRepresentation("");
-        txtCountry.setNullRepresentation("");
 
         txtPhone.setNullRepresentation("");
 
@@ -56,28 +51,24 @@ public class PersonForm extends FormLayout {
         }
 
         setSizeUndefined();
-        HorizontalLayout buttons = new HorizontalLayout(savePerson, deletePerson);
+        HorizontalLayout buttons = new HorizontalLayout(savePhone, deletePhone);
         buttons.setSpacing(true);
 
-        addComponents(txtName, txtAge, txtCountry, txtPhone, buttons);
+        addComponents(txtPhone, buttons);
 
-        savePerson.setStyleName(ValoTheme.BUTTON_PRIMARY);
-        savePerson.setClickShortcut(ShortcutAction.KeyCode.ENTER);
-
-        binderPerson.bind(txtName, "name");
-        binderPerson.bind(txtAge, "age");
-        binderPerson.bind(txtCountry, "country");
+        savePhone.setStyleName(ValoTheme.BUTTON_PRIMARY);
+        savePhone.setClickShortcut(ShortcutAction.KeyCode.ENTER);
 
         binderTelephone.bind(txtPhone, "number");
 
-        savePerson.addClickListener(new Button.ClickListener() {
+        savePhone.addClickListener(new Button.ClickListener() {
             @Override
             public void buttonClick(Button.ClickEvent clickEvent) {
                 save();
             }
         });
 
-        deletePerson.addClickListener(new Button.ClickListener() {
+        deletePhone.addClickListener(new Button.ClickListener() {
             @Override
             public void buttonClick(Button.ClickEvent clickEvent) {
                 delete();
@@ -86,18 +77,22 @@ public class PersonForm extends FormLayout {
 
     }
 
-    public void setPerson(Person person, Telephone telephone) {
+    public void setTelephone(Person person, Telephone telephone) {
         this.person = person;
         this.telephone = telephone;
+
+        bicPhone.removeAllItems();
+        if (person.getTelephones() != null) {
+            bicPhone.addAll(person.getTelephones());
+        }
 
         binderPerson.setItemDataSource(person);
         binderTelephone.setItemDataSource(telephone);
 
         // Show delete button for only customers already in the database
-        deletePerson.setVisible(person.getIdPerson() != null);
-        txtPhone.setVisible(person.getIdPerson() == null || person.getIdPerson() == 0);
+        deletePhone.setVisible(person.getIdPerson() != null);
         setVisible(true);
-        txtName.selectAll();
+        txtPhone.selectAll();
     }
 
     private void save() {
@@ -110,23 +105,17 @@ public class PersonForm extends FormLayout {
         }
 
         if (person.getIdPerson() != null && person.getIdPerson() > 0) {
-
             List<Telephone> phones = new ArrayList<>();
 
             if (person.getTelephones() != null) {
                 phones.addAll(person.getTelephones());
             }
-
             phones.add(telephone);
-
             person.setTelephones(phones);
-
             personService.update(person);
         } else {
-
             List<Telephone> phones = new ArrayList<>();
             phones.add(telephone);
-
             person.setTelephones(phones);
             personService.insert(person);
         }

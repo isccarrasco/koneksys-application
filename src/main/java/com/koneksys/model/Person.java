@@ -2,6 +2,7 @@ package com.koneksys.model;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.List;
 
 @Entity
 @Table(name = "person")
@@ -17,6 +18,9 @@ public class Person implements Serializable {
     private int age;
 
     private String country;
+
+    @OneToMany(mappedBy="person")
+    private List<Telephone> telephones;
 
     public Person() {
 
@@ -58,6 +62,14 @@ public class Person implements Serializable {
 
     public void setCountry(String country) {
         this.country = country;
+    }
+
+    public List<Telephone> getTelephones() {
+        return telephones;
+    }
+
+    public void setTelephones(List<Telephone> telephones) {
+        this.telephones = telephones;
     }
 
     @Override

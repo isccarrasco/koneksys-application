@@ -17,9 +17,11 @@ public class PersonDaoImpl implements PersonDao {
         String queryFilter;
 
         if (filter.isEmpty()) {
-            query = em.createQuery("from Person p order by p.idPerson");
+            query = em.createQuery("from Person p left join fetch p.telephones t order by p.idPerson");
         } else {
-            queryFilter = "from Person p where lower(name) like ('%" + filter.toLowerCase() + "%') order by p.idPerson";
+            queryFilter = "from Person p " +
+                    "left join fetch p.telephones t " +
+                    "where lower(name) like ('%" + filter.toLowerCase() + "%') order by p.idPerson";
             query = em.createQuery(queryFilter);
         }
 

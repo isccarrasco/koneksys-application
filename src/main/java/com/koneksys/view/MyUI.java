@@ -1,6 +1,7 @@
 package com.koneksys.view;
 
 import com.koneksys.model.Person;
+import com.koneksys.model.Telephone;
 import com.koneksys.service.PersonService;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
@@ -10,6 +11,7 @@ import com.vaadin.event.SelectionEvent;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
+import com.vaadin.shared.ui.grid.HeightMode;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
 
@@ -26,11 +28,15 @@ public class MyUI extends UI {
     @EJB
     private PersonService personService;
 
-    final Grid grid = new Grid();
-    final BeanItemContainer<Person> beanItemContainer = new BeanItemContainer<>(Person.class);
-    private TextField txtFilter = new TextField();
-    private PersonForm form = new PersonForm(this);
+    final Grid gridPerson = new Grid();
+    final Grid gridTelephone = new Grid();
 
+    final BeanItemContainer<Person> bicPerson = new BeanItemContainer<>(Person.class);
+    final BeanItemContainer<Telephone> bicTelephone = new BeanItemContainer<>(Telephone.class);
+
+    private TextField txtFilter = new TextField();
+    private PersonForm formPerson = new PersonForm(this);
+    private TelephoneForm formTelephone = new TelephoneForm(this);
 
     @Override
     protected void init(VaadinRequest vaadinRequest) {
@@ -67,42 +73,109 @@ public class MyUI extends UI {
         btnAddPerson.addClickListener(new Button.ClickListener() {
             @Override
             public void buttonClick(Button.ClickEvent clickEvent) {
-                grid.deselectAll();
-                form.setPerson(new Person());
+                gridPerson.deselectAll();
+                formPerson.setPerson(new Person(), new Telephone());
+                formTelephone.setVisible(false);
             }
         });
 
-        HorizontalLayout toolbar = new HorizontalLayout(filtering, btnAddPerson, new Label("For Update or Delete, click the person record."));
+        final Button btnAddPhone = new Button("Add new Phone");
+        btnAddPhone.addClickListener(new Button.ClickListener() {
+            @Override
+            public void buttonClick(Button.ClickEvent clickEvent) {
+                gridTelephone.deselectAll();
+                formTelephone.setTelephone((Person) gridPerson.getSelectedRow(), new Telephone());
+            }
+        });
+
+        HorizontalLayout toolbar = new HorizontalLayout(filtering, btnAddPerson, btnAddPhone, new Label("For Update or Delete, click the person record."));
         toolbar.setSpacing(true);
 
-        grid.setSelectionMode(Grid.SelectionMode.SINGLE);
-        grid.setContainerDataSource(beanItemContainer);
-        grid.setColumns("name", "age", "country");
+        gridPerson.setSelectionMode(Grid.SelectionMode.SINGLE);
+        gridPerson.setContainerDataSource(bicPerson);
+        gridPerson.setColumns("name", "age", "country");
+        gridPerson.setHeightMode(HeightMode.ROW);
+        gridPerson.setHeightByRows(5);
 
-        HorizontalLayout main = new HorizontalLayout(grid, form);
+        gridTelephone.setSelectionMode(Grid.SelectionMode.SINGLE);
+        gridTelephone.setContainerDataSource(bicTelephone);
+        gridTelephone.setColumns("number");
+        gridTelephone.setHeightMode(HeightMode.ROW);
+        gridTelephone.setHeightByRows(3);
+
+
+        HorizontalLayout grids = new HorizontalLayout(gridPerson, gridTelephone);
+        grids.setSpacing(true);
+        grids.setSizeFull();
+
+        HorizontalLayout forms = new HorizontalLayout(formPerson, formTelephone);
+        forms.setSpacing(true);
+        forms.setSizeFull();;
+
+        VerticalLayout main = new VerticalLayout(grids, forms);
         main.setSizeFull();
         main.setSpacing(true);
-        grid.setSizeFull();
-        main.setExpandRatio(grid, 1);
+
+        gridPerson.setSizeFull();
+        gridTelephone.setSizeFull();
+        main.setExpandRatio(grids, 1);
 
         layout.addComponents(welcome, toolbar, main);
 
         // fetch list of Customers from service and assign it to Grid
         updateList();
+        if (bicPerson.size() > 0 && gridPerson.getSelectedRow() != null) {
+            btnAddPhone.setVisible(true);
+        } else {
+            btnAddPhone.setVisible(false);
+        }
 
         setContent(layout);
 
-        form.setVisible(false);
+        formPerson.setVisible(false);
+        formTelephone.setVisible(false);
 
-        grid.addSelectionListener(new SelectionEvent.SelectionListener() {
+        gridPerson.addSelectionListener(new SelectionEvent.SelectionListener() {
             @Override
             public void select(SelectionEvent selectionEvent) {
-                if (grid.getSelectedRow() != null) {
-                    Person person = (Person) grid.getSelectedRow();
-                    form.setPerson(person);
+                if (gridPerson.getSelectedRow() != null) {
+                    Person person = (Person) gridPerson.getSelectedRow();
+
+                    bicTelephone.removeAllItems();
+                    bicTelephone.addAll(person.getTelephones());
+
+                    Telephone telephone;
+                    if (person.getTelephones() != null && person.getTelephones().size() > 0) {
+                        gridTelephone.select(person.getTelephones().get(0));
+                        telephone = (Telephone) gridTelephone.getSelectedRow();
+                    } else {
+                        telephone = new Telephone();
+                    }
+
+                    formPerson.setPerson(person, telephone);
+
+                    btnAddPhone.setVisible(gridPerson.getSelectedRow() != null);
+
                 } else {
-                    form.setVisible(false);
+                    bicTelephone.removeAllItems();
+                    formPerson.setVisible(false);
+                    formTelephone.setVisible(false);
                 }
+            }
+        });
+
+        gridTelephone.addSelectionListener(new SelectionEvent.SelectionListener() {
+            @Override
+            public void select(SelectionEvent selectionEvent) {
+
+                if (gridTelephone.getSelectedRow() != null) {
+                    Person person = (Person) gridPerson.getSelectedRow();
+                    Telephone telephone = (Telephone) gridTelephone.getSelectedRow();
+
+                    formTelephone.setTelephone(person, telephone);
+
+                }
+
             }
         });
 
@@ -113,9 +186,21 @@ public class MyUI extends UI {
         try {
             Context context = new InitialContext();
             personService = (PersonService) context.lookup("java:global/application/PersonServiceImpl!com.koneksys.service.PersonService");
+
             List<Person> listPerson = personService.findAll(txtFilter.getValue());
-            beanItemContainer.removeAllItems();
-            beanItemContainer.addAll(listPerson);
+            bicPerson.removeAllItems();
+            bicTelephone.removeAllItems();
+
+            bicPerson.addAll(listPerson);
+
+            if (formPerson.isVisible()) {
+                formPerson.setVisible(false);
+            }
+
+            if (formTelephone.isVisible()) {
+                formTelephone.setVisible(false);
+            }
+
         } catch (NamingException e) {
             e.printStackTrace();
             Notification.show("Connection issue", "Can't find the JNDI server", Notification.Type.ERROR_MESSAGE);
