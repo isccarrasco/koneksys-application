@@ -18,4 +18,5 @@ public interface PersonDao {
 
     public void delete(Person person);
 
+    public List<Person> findKnowns(Integer idPerson);
 }

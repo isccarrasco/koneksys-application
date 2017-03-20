@@ -17,10 +17,16 @@ public class PersonDaoImpl implements PersonDao {
         String queryFilter;
 
         if (filter.isEmpty()) {
-            query = em.createQuery("from Person p left join fetch p.telephones t order by p.idPerson");
-        } else {
-            queryFilter = "from Person p " +
+            query = em.createQuery("select distinct p from Person p " +
                     "left join fetch p.telephones t " +
+                    "left join fetch p.knowns ks " +
+                    "left join fetch ks.known k " +
+                    "order by p.idPerson");
+        } else {
+            queryFilter = "select distinct p from Person p " +
+                    "left join fetch p.telephones t " +
+                    "left join fetch p.knowns ks " +
+                    "left join fetch ks.known k " +
                     "where lower(name) like ('%" + filter.toLowerCase() + "%') order by p.idPerson";
             query = em.createQuery(queryFilter);
         }
@@ -33,8 +39,21 @@ public class PersonDaoImpl implements PersonDao {
     }
 
     public List<Person> findByCountry(String country) {
-        Query query = em.createQuery("from Person p where p.country = :country");
+        Query query = em.createQuery("select p from Person p " +
+                "where p.country = :country");
         query.setParameter("country", country);
+        return query.getResultList();
+    }
+
+    @Override
+    public List<Person> findKnowns(Integer idPerson) {
+        String filterQuery = "select p from Person p " +
+                "left join fetch p.telephones t " +
+                "left join fetch p.knowns ks " +
+                "left join fetch ks.known k " +
+                "where k.idPerson = :idPerson ";
+        Query query = em.createQuery(filterQuery);
+        query.setParameter("idPerson", idPerson);
         return query.getResultList();
     }
 

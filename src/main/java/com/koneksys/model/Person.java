@@ -2,7 +2,7 @@ package com.koneksys.model;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "person")
@@ -20,7 +20,10 @@ public class Person implements Serializable {
     private String country;
 
     @OneToMany(mappedBy="person")
-    private List<Telephone> telephones;
+    private Set<Telephone> telephones;
+
+    @OneToMany(mappedBy = "person")
+    private Set<PersonKnown> knowns;
 
     public Person() {
 
@@ -64,12 +67,20 @@ public class Person implements Serializable {
         this.country = country;
     }
 
-    public List<Telephone> getTelephones() {
+    public Set<Telephone> getTelephones() {
         return telephones;
     }
 
-    public void setTelephones(List<Telephone> telephones) {
+    public void setTelephones(Set<Telephone> telephones) {
         this.telephones = telephones;
+    }
+
+    public Set<PersonKnown> getKnowns() {
+        return knowns;
+    }
+
+    public void setKnowns(Set<PersonKnown> knowns) {
+        this.knowns = knowns;
     }
 
     @Override

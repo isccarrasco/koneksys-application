@@ -11,3 +11,12 @@ CREATE TABLE telephone (
   id_person integer not null,
   constraint telephone_person_fk foreign key (id_person) references person (id_person)
 );
+
+CREATE TABLE person_known
+(
+  id_person integer not null,
+  id_known integer not null,
+  constraint person_person_fk foreign key (id_person) references person (id_person),
+  constraint person_known_fk foreign key (id_known) references person (id_person)
+);
+
