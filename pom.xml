@@ -227,7 +227,7 @@
                 <version>1.2.0.Alpha4</version>
 
                 <configuration>
-                    <jbossHome>${project.build.directory}/wildfly-run/wildfly-10.1.0.Final</jbossHome>
+                    <!--<jbossHome>${project.build.directory}/wildfly-run/wildfly-10.1.0.Final</jbossHome>-->
                     <executeCommands>
                         <batch>false</batch>
                         <scripts>

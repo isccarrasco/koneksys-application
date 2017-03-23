@@ -2,6 +2,7 @@ package com.koneksys.model;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -87,5 +88,27 @@ public class Person implements Serializable {
     public String toString() {
         return "Person [idPerson=" + idPerson + ", name=" + name
                 + ", age=" + age + ", country=" + country + "]";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Person person = (Person) o;
+
+        if (age != person.age) return false;
+        if (!idPerson.equals(person.idPerson)) return false;
+        if (name != null ? !name.equals(person.name) : person.name != null) return false;
+        return country != null ? country.equals(person.country) : person.country == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = idPerson.hashCode();
+        result = 31 * result + (name != null ? name.hashCode() : 0);
+        result = 31 * result + age;
+        result = 31 * result + (country != null ? country.hashCode() : 0);
+        return result;
     }
 }

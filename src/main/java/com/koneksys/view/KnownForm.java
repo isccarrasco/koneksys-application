@@ -15,6 +15,7 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -33,16 +34,15 @@ public class KnownForm extends FormLayout {
     private TwinColSelect twinKnowns = new TwinColSelect("Select Targets");
     private Button saveKnown = new Button("Save");
 
-    List<Person> targets = new ArrayList<>();
-    List<Person> friends = new ArrayList<>();
-
     public KnownForm(MyUI myUI) {
 
         this.myUI = myUI;
 
         twinKnowns.setContainerDataSource(bicPerson);
         twinKnowns.setItemCaptionPropertyId("name");
+        twinKnowns.setRows(5);
         twinKnowns.setSizeFull();
+        twinKnowns.setImmediate(true);
 
         try {
             Context context = new InitialContext();
@@ -76,34 +76,22 @@ public class KnownForm extends FormLayout {
 
         List<Person> listPerson = personService.findAll("");
 
-        targets.clear();
-        friends.clear();
+        bicPerson.removeAllItems();
+        bicPerson.addAll(listPerson);
+
+        twinKnowns.clear();
 
         for (Person p : listPerson) {
-            if (!p.getIdPerson().equals(person.getIdPerson())) {
+            if (p.equals(person)) {
+                bicPerson.removeItem(p);
+            } else {
+                for (PersonKnown pk : person.getKnowns()) {
 
-                if (person.getKnowns().size() > 0) {
-                    for (PersonKnown pk : person.getKnowns()) {
-
-                        if (!pk.getKnown().getIdPerson().equals(p.getIdPerson())) {
-                            targets.add(p);
-                        } else {
-                            friends.add(p);
-                        }
-
+                    if (p.equals(pk.getKnown())) {
+                        twinKnowns.select(p);
                     }
-                } else {
-                    targets.addAll(listPerson);
                 }
-
             }
-        }
-
-        bicPerson.removeAllItems();
-        bicPerson.addAll(targets);
-
-        if (friends.size() > 0) {
-            twinKnowns.setValue(friends);
         }
 
         setVisible(true);
@@ -132,7 +120,6 @@ public class KnownForm extends FormLayout {
 
             personService.updateKnown(person);
         }
-
 
         myUI.updateList();
         setVisible(false);
