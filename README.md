@@ -21,6 +21,30 @@ Follow these step to create the database and tables requireds.
      country character varying
    );
    ```
+
+3. Create the table Telephone
+   ```
+   CREATE TABLE telephone (
+     id_telephone serial not null primary key unique,
+     number character varying not null unique,
+     id_person integer not null,
+     constraint telephone_person_fk foreign key (id_person) references person (id_person)
+   );
+   ```
+   
+4. Create the table PersonKnown
+   ```
+   CREATE TABLE person_known
+   (
+     id_person integer not null,
+     id_known integer not null,
+     constraint person_person_fk foreign key (id_person) references person (id_person),
+     constraint person_known_fk foreign key (id_known) references person (id_person)
+   );
+   ```
+
+5. You can create the database usin the script ``database.sql`` saved on
+``resource\script`` folder.
    
 If you have an Wildfly web server, and you can manually create the datasource 
 for connect to the new database, only update the ``persistence.xml`` file on
@@ -30,31 +54,31 @@ run ``maven package`` and then deploy the war on your server with ``application`
 
 In other case, follow the next steps to configure the datasource inside a embedded Wildfly server.
    
-3. After clone the project, go inside the application folder.
+6. After clone the project, go inside the application folder.
 
-4. Change the value of the database connection parameters inside the ``application.properties`` file
+7. Change the value of the database connection parameters inside the ``application.properties`` file
    ```
    datasource.connection=jdbc:postgresql://localhost:5432/db_name
    datasource.user=[your-user-name]
    datasource.password=[your-password]
    ```
 
-5. Compile the project.
+8. Compile the project.
    ```
    mvn clean compile package install
    ```
 
-6. Run the Wildfly embedded web server.
+9. Run the Wildfly embedded web server.
    ```
-   mvn wilfly:start
+   mvn wildfly:start
    ```
 
-8. In the `pom.xml file, uncomment the line ``233``, for enable wildfly home after start
+10. In the `pom.xml file, uncomment the line ``233``, for enable wildfly home after start
    ```
    <jbossHome>${project.build.directory}/wildfly-run/wildfly-10.1.0.Final</jbossHome>
    ```
 
-9. Install the PostgreSQL Driver inside the Wildfly instance (if don't have it) 
+11. Install the PostgreSQL Driver inside the Wildfly instance (if don't have it) 
 using the install script defined on pom.xml
    ```
    mvn wildfly:execute-commands -P "install-driver"
@@ -66,14 +90,14 @@ using the install script defined on pom.xml
       
     ``--resources=${settings.localRepository}/org/postgresql/postgresql/42.0.0/postgresql-42.0.0.jar``
     
-10. Install Datasource inside Wildfly instance.
+12. Install Datasource inside Wildfly instance.
    ```
    mvn wildfly:execute-commands -P "install-datasource"
    ```
    
-11. Now you can deploy the application.
+13. Now you can deploy the application.
    ```
    mvn wildfly:deploy
    ```
 
-12. Now, go to [http://localhost:8080/application](http://localhost:8080/application)
+14. Now, go to [http://localhost:8080/application](http://localhost:8080/application)

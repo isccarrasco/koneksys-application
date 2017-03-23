@@ -48,10 +48,12 @@ public class PersonDaoImpl implements PersonDao {
     @Override
     public List<Person> findKnowns(Integer idPerson) {
         String filterQuery = "select p from Person p " +
-                "left join fetch p.telephones t " +
-                "left join fetch p.knowns ks " +
-                "left join fetch ks.known k " +
-                "where k.idPerson = :idPerson ";
+                "where p.idPerson in (" +
+                "   select k.idPerson " +
+                "   from Person k " +
+                "   left join fetch k.knowns ks " +
+                "   left join fetch ks.person per " +
+                "   where per.idPerson = :idPerson)";
         Query query = em.createQuery(filterQuery);
         query.setParameter("idPerson", idPerson);
         return query.getResultList();
