@@ -19,11 +19,11 @@
     <!--</persistence-unit>-->
 
     <persistence-unit name="applicationPU" transaction-type="JTA">
-        <jta-data-source>java:/PostgresDS</jta-data-source>
+        <jta-data-source>java:/JenaDS</jta-data-source>
         <properties>
-            <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQL95Dialect" />
-            <property name="hibernate.transaction.factory_class" value="org.hibernate.ejb.transaction.JoinableCMTTransactionFactory"/>
-            <property name="hibernate.hbm2ddl.auto" value="create-drop" />
+            <property name="hibernate.dialect" value="org.hibernate.dialect.Dialect" />
+            <!--<property name="hibernate.transaction.factory_class" value="org.hibernate.ejb.transaction.JoinableCMTTransactionFactory"/>-->
+            <!--<property name="hibernate.hbm2ddl.auto" value="create-drop" />-->
         </properties>
     </persistence-unit>
 

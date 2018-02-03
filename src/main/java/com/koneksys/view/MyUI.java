@@ -15,6 +15,10 @@ import com.vaadin.server.VaadinServlet;
 import com.vaadin.shared.ui.grid.HeightMode;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
+import org.apache.jena.query.Dataset;
+import org.apache.jena.query.ReadWrite;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.tdb.TDBFactory;
 
 import javax.ejb.EJB;
 import javax.naming.Context;
@@ -45,6 +49,18 @@ public class MyUI extends UI {
 
     @Override
     protected void init(VaadinRequest vaadinRequest) {
+
+        String directory = "MyDatabases/Dataset1" ;
+        Dataset dataset = TDBFactory.createDataset(directory) ;
+
+        dataset.begin(ReadWrite.READ) ;
+        // Get model inside the transaction
+        Model model = dataset.getDefaultModel() ;
+        dataset.end() ;
+
+        dataset.begin(ReadWrite.WRITE) ;
+        model = dataset.getDefaultModel() ;
+        dataset.end() ;
 
         final VerticalLayout layout = new VerticalLayout();
         layout.setSpacing(true);

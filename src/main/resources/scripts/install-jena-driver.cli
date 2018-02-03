@@ -1,0 +1,15 @@
+# Connect to Wildfly instance
+connect
+
+# Create Oracle JDBC Driver Module
+# If the module already exists, Wildfly will output a message saying that the module already exists and the script exits.
+module add \
+    --name=org.apache.jena \
+    --resources=~/.m2/repository/org/apache/jena/jena-jdbc-driver-bundle/3.2.0/jena-jdbc-driver-bundle-3.2.0.jar \
+    --dependencies=javax.api,javax.transaction.api
+
+# Add Driver Properties
+/subsystem=datasources/jdbc-driver=jena: \
+    add( \
+        driver-name="postgresql", \
+        driver-module-name="org.postgresql")

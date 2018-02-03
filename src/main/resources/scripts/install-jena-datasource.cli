@@ -1,0 +1,15 @@
+# Connect to Wildfly instance
+connect
+
+# Create Datasource
+/subsystem=datasources/data-source=JenaDS: \
+    add( \
+     jndi-name=java:/JenaDS, \
+     driver-name=jena, \
+     connection-url=jdbc:jena:tdb:location=/Users/mario)
+
+     #, \
+     #user-name="${datasource.user}", \
+     #password="${datasource.password}")
+
+/subsystem=ee/service=default-bindings:write-attribute(name="datasource", value="java:/JenaDS")
