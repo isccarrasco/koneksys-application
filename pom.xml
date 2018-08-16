@@ -224,7 +224,7 @@
             <plugin>
                 <groupId>org.wildfly.plugins</groupId>
                 <artifactId>wildfly-maven-plugin</artifactId>
-                <version>1.2.0.Alpha4</version>
+                <version>1.2.2.Final</version>
 
                 <configuration>
                     <!--<jbossHome>${project.build.directory}/wildfly-run/wildfly-10.1.0.Final</jbossHome>-->
@@ -247,6 +247,44 @@
                         </users>
                     </add-user>
                 </configuration>
+
+                <executions>
+                    <execution>
+                        <id>install-postgresql-driver-on-wildfly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>deploy-artifact</goal>
+                        </goals>
+                        <configuration>
+                            <groupId>org.postgresql</groupId>
+                            <artifactId>postgresql</artifactId>
+                            <name>postgresql</name>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>add-postgresql-datasource-on-wildfly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>add-resource</goal>
+                        </goals>
+                        <configuration>
+                            <address>subsystem=datasources</address>
+                            <resources>
+                                <resource>
+                                    <address>data-source=PostgresDS</address>
+                                    <properties>
+                                        <jndi-name>java:/PostgresDS</jndi-name>
+                                        <enabled>true</enabled>
+                                        <driver-name>postgresql</driver-name>
+                                        <connection-url>jdbc:postgresql://localhost:5432/koneksys</connection-url>
+                                    </properties>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+
+                </executions>
             </plugin>
 
             <plugin>
