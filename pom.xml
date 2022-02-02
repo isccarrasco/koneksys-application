@@ -18,7 +18,7 @@
 
         <hibernate.version>5.2.8.Final</hibernate.version>
         <hibernate-jpa.version>1.0.0.Final</hibernate-jpa.version>
-        <postgres-version>42.0.0</postgres-version>
+        <postgres-version>42.2.25</postgres-version>
 
         <vaadin.version>7.7.7</vaadin.version>
         <vaadin.plugin.version>7.7.7</vaadin.plugin.version>
